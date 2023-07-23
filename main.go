@@ -1,20 +1,41 @@
 package main
 
 import (
+	"context"
+	"flag"
 	"github.com/gofiber/fiber/v2"
+	"github.com/hotel-reservation/api"
+	"github.com/hotel-reservation/db"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 )
 
+const uriDb = "mongodb://localhost:27017"
+const dbName = "hotel-reservation"
+const userColl = "user"
+
 func main() {
-	app := fiber.New()
-	app.Get("/foo", handleFoo)
-	err := app.Listen(":5000")
+	config := fiber.Config{
+		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+			return ctx.JSON(map[string]string{"message": err.Error()})
+		},
+	}
+	listenAddress := flag.String("listenAddr", ":5000", "address to listen")
+	app := fiber.New(config)
+	appV1 := app.Group("api/v1")
+	// create mongodb connection
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uriDb))
 	if err != nil {
 		log.Fatal(err)
-		return
 	}
-}
-
-func handleFoo(ctx *fiber.Ctx) error {
-	return ctx.JSON(map[string]string{"msg": "is working fine ................"})
+	userStore := db.NewMongoUserStore(client)
+	userHandler := api.NewUserHandler(userStore)
+	appV1.Get("/user/:id", userHandler.HandleGetUser)
+	appV1.Get("/users", userHandler.HandleGetUsers)
+	appV1.Post("/user", userHandler.HandlePostUser)
+	err2 := app.Listen(*listenAddress)
+	if err2 != nil {
+		log.Fatal(err2)
+	}
 }
