@@ -15,6 +15,7 @@ type UserStore interface {
 	GetUserById(ctx context.Context, id string) (*domain.User, error)
 	GetUsers(ctx context.Context) ([]*domain.User, error)
 	CreateUser(ctx context.Context, user *domain.User) (*domain.User, error)
+	DeleteUser(ctx context.Context, id string) error
 }
 
 // MongoUserStore MongoStore implementation of this user interface
@@ -62,4 +63,16 @@ func (m *MongoUserStore) GetUsers(ctx context.Context) ([]*domain.User, error) {
 		return []*domain.User{}, nil
 	}
 	return users, nil
+}
+
+func (m *MongoUserStore) DeleteUser(ctx context.Context, id string) error {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	_, err = m.collection.DeleteOne(ctx, bson.M{"_id": oid})
+	if err != nil {
+		return err
+	}
+	return nil
 }

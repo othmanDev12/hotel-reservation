@@ -12,8 +12,6 @@ import (
 )
 
 const uriDb = "mongodb://localhost:27017"
-const dbName = "hotel-reservation"
-const userColl = "user"
 
 func main() {
 	config := fiber.Config{
@@ -34,6 +32,7 @@ func main() {
 	appV1.Get("/user/:id", userHandler.HandleGetUser)
 	appV1.Get("/users", userHandler.HandleGetUsers)
 	appV1.Post("/user", userHandler.HandlePostUser)
+	appV1.Delete("/user/:id", userHandler.HandleDeleteUser)
 	err2 := app.Listen(*listenAddress)
 	if err2 != nil {
 		log.Fatal(err2)
