@@ -33,6 +33,7 @@ func main() {
 	appV1.Get("/users", userHandler.HandleGetUsers)
 	appV1.Post("/user", userHandler.HandlePostUser)
 	appV1.Delete("/user/:id", userHandler.HandleDeleteUser)
+	appV1.Put("/user/:id", userHandler.HandlePutUser)
 	err2 := app.Listen(*listenAddress)
 	if err2 != nil {
 		log.Fatal(err2)

@@ -5,6 +5,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/hotel-reservation/db"
 	"github.com/hotel-reservation/domain"
+	"github.com/hotel-reservation/util"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -64,4 +66,23 @@ func (h *UserHandler) HandlePostUser(ctx *fiber.Ctx) error {
 		return err
 	}
 	return ctx.JSON(insertedValue)
+}
+
+func (h *UserHandler) HandlePutUser(ctx *fiber.Ctx) error {
+	var (
+		id     = ctx.Params("id")
+		values = bson.M{}
+	)
+	if err := ctx.BodyParser(&values); err != nil {
+		return err
+	}
+	oid, errId := util.ObjectIdParser(id)
+	if errId != nil {
+		return errId
+	}
+	err := h.userStore.UpdateUser(ctx.Context(), bson.M{"_id": oid}, values)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(map[string]string{"message": "updated user are: " + id})
 }
