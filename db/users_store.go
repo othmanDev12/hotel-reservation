@@ -10,8 +10,14 @@ import (
 
 const userCol = "user"
 
+type Dropper interface {
+	Drop(context.Context) error
+}
+
 // UserStore create a new user store interface
 type UserStore interface {
+	Dropper
+
 	GetUserById(ctx context.Context, id string) (*domain.User, error)
 	GetUsers(ctx context.Context) ([]*domain.User, error)
 	CreateUser(ctx context.Context, user *domain.User) (*domain.User, error)
@@ -26,10 +32,10 @@ type MongoUserStore struct {
 }
 
 // NewMongoUserStore NewMongoStore constructor
-func NewMongoUserStore(client *mongo.Client) *MongoUserStore {
+func NewMongoUserStore(client *mongo.Client, dbName string) *MongoUserStore {
 	return &MongoUserStore{
 		client:     client,
-		collection: client.Database(Dbname).Collection(userCol),
+		collection: client.Database(dbName).Collection(userCol),
 	}
 }
 
@@ -85,4 +91,8 @@ func (m *MongoUserStore) UpdateUser(ctx context.Context, filter, values bson.M) 
 		return err
 	}
 	return nil
+}
+
+func (m *MongoUserStore) Drop(ctx context.Context) error {
+	return m.collection.Drop(ctx)
 }
