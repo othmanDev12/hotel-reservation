@@ -11,11 +11,6 @@ import (
 	"log"
 )
 
-const (
-	uriDb  = "mongodb://localhost:27017"
-	dbname = "hotel-reservation"
-)
-
 func main() {
 	config := fiber.Config{
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
@@ -26,11 +21,11 @@ func main() {
 	app := fiber.New(config)
 	appV1 := app.Group("api/v1")
 	// create mongodb connection
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uriDb))
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(db.UriDb))
 	if err != nil {
 		log.Fatal(err)
 	}
-	userStore := db.NewMongoUserStore(client, dbname)
+	userStore := db.NewMongoUserStore(client, db.Dbname)
 	userHandler := api.NewUserHandler(userStore)
 	appV1.Get("/user/:id", userHandler.HandleGetUser)
 	appV1.Get("/users", userHandler.HandleGetUsers)
