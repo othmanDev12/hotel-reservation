@@ -36,6 +36,7 @@ func main() {
 	appV1.Delete("/user/:id", userHandler.HandleDeleteUser)
 	appV1.Put("/user/:id", userHandler.HandlePutUser)
 	appV1.Get("/hotels", hotelHandler.HandleGetHotels)
+	appV1.Get("/hotel/:id/rooms", hotelHandler.HandleGetRoomsByHotelId)
 	err2 := app.Listen(*listenAddress)
 	if err2 != nil {
 		log.Fatal(err2)
