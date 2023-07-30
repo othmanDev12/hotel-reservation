@@ -18,7 +18,6 @@ var (
 )
 
 func seedHotel(name string, location string) {
-
 	hotel := domain.Hotel{
 		Name:     name,
 		Location: location,
@@ -40,13 +39,13 @@ func seedHotel(name string, location string) {
 		},
 	}
 
-	_, err := hotelStore.CreateHotel(context.Background(), &hotel)
+	_, err := hotelStore.CreateHotel(ctx, &hotel)
 	if err != nil {
 		log.Fatal(err)
 	}
 	for _, room := range rooms {
 		room.HotelID = hotel.Id
-		_, err := roomStore.CreateRoom(context.Background(), &room)
+		_, err := roomStore.CreateRoom(ctx, &room)
 		if err != nil {
 			log.Fatal(err)
 		}
