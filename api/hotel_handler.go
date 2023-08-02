@@ -44,3 +44,22 @@ func (h *HotelHandler) HandleGetHotelById(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(hotel)
 }
+
+func (h *HotelHandler) HandlePutHotel(ctx *fiber.Ctx) error {
+	var (
+		id     = ctx.Params("id")
+		values = bson.M{}
+	)
+	if err := ctx.BodyParser(&values); err != nil {
+		return err
+	}
+	oid, _ := util.ObjectIdParser(id)
+
+	update := bson.M{"$set": values}
+
+	err := h.store.HotelStore.UpdateHotel(ctx.Context(), bson.M{"_id": oid}, update)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(map[string]string{"message": "updated hotel are: " + id})
+}

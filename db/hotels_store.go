@@ -11,7 +11,7 @@ import (
 
 type HotelStore interface {
 	CreateHotel(ctx context.Context, hotel *domain.Hotel) (*domain.Hotel, error)
-	UpdateHotel(ctx context.Context, filter bson.M, update bson.M) error
+	UpdateHotel(ctx context.Context, filter, update bson.M) error
 	GetHotels(ctx context.Context) ([]*domain.Hotel, error)
 	GetHotelById(ctx context.Context, id string) (*domain.Hotel, error)
 }
@@ -37,7 +37,7 @@ func (m *MongoHotelStore) CreateHotel(ctx context.Context, hotel *domain.Hotel) 
 	return hotel, nil
 }
 
-func (m *MongoHotelStore) UpdateHotel(ctx context.Context, filter bson.M, update bson.M) error {
+func (m *MongoHotelStore) UpdateHotel(ctx context.Context, filter, update bson.M) error {
 	_, err := m.collection.UpdateOne(ctx, filter, update)
 	return err
 }
