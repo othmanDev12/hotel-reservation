@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"github.com/hotel-reservation/domain"
+	"github.com/hotel-reservation/util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,6 +13,7 @@ type HotelStore interface {
 	CreateHotel(ctx context.Context, hotel *domain.Hotel) (*domain.Hotel, error)
 	UpdateHotel(ctx context.Context, filter bson.M, update bson.M) error
 	GetHotels(ctx context.Context) ([]*domain.Hotel, error)
+	GetHotelById(ctx context.Context, id string) (*domain.Hotel, error)
 }
 
 type MongoHotelStore struct {
@@ -50,4 +52,14 @@ func (m *MongoHotelStore) GetHotels(ctx context.Context) ([]*domain.Hotel, error
 		return nil, err
 	}
 	return hotels, nil
+}
+
+func (m *MongoHotelStore) GetHotelById(ctx context.Context, id string) (*domain.Hotel, error) {
+	oid, _ := util.ObjectIdParser(id)
+	var hotel domain.Hotel
+	if err := m.collection.FindOne(ctx, bson.M{"_id": oid}).Decode(&hotel); err != nil {
+		return nil, err
+	}
+	return &hotel, nil
+
 }

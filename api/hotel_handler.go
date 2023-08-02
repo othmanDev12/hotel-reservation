@@ -35,3 +35,12 @@ func (h *HotelHandler) HandleGetRoomsByHotelId(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(rooms)
 }
+
+func (h *HotelHandler) HandleGetHotelById(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+	hotel, err := h.store.HotelStore.GetHotelById(ctx.Context(), id)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(hotel)
+}

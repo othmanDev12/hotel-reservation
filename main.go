@@ -46,6 +46,7 @@ func main() {
 
 	appV1.Get("/hotels", hotelHandler.HandleGetHotels)
 	appV1.Get("/hotel/:id/rooms", hotelHandler.HandleGetRoomsByHotelId)
+	appV1.Get("/hotel/:id", hotelHandler.HandleGetHotelById)
 	err2 := app.Listen(*listenAddress)
 	if err2 != nil {
 		log.Fatal(err2)
