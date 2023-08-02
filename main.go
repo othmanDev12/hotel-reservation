@@ -44,12 +44,13 @@ func main() {
 	appV1.Post("/user", userHandler.HandlePostUser)
 	appV1.Delete("/user/:id", userHandler.HandleDeleteUser)
 	appV1.Put("/user/:id", userHandler.HandlePutUser)
-
 	// hotels
 	appV1.Get("/hotels", hotelHandler.HandleGetHotels)
 	appV1.Get("/hotel/:id/rooms", hotelHandler.HandleGetRoomsByHotelId)
 	appV1.Get("/hotel/:id", hotelHandler.HandleGetHotelById)
 	appV1.Put("/hotel/:id", hotelHandler.HandlePutHotel)
+	appV1.Delete("/hotel/:id", hotelHandler.HandleDeleteHotel)
+
 	err2 := app.Listen(*listenAddress)
 	if err2 != nil {
 		log.Fatal(err2)

@@ -14,6 +14,7 @@ type HotelStore interface {
 	UpdateHotel(ctx context.Context, filter, update bson.M) error
 	GetHotels(ctx context.Context) ([]*domain.Hotel, error)
 	GetHotelById(ctx context.Context, id string) (*domain.Hotel, error)
+	DeleteHotel(ctx context.Context, id string) error
 }
 
 type MongoHotelStore struct {
@@ -62,4 +63,13 @@ func (m *MongoHotelStore) GetHotelById(ctx context.Context, id string) (*domain.
 	}
 	return &hotel, nil
 
+}
+
+func (m *MongoHotelStore) DeleteHotel(ctx context.Context, id string) error {
+	oid, _ := util.ObjectIdParser(id)
+	_, err := m.collection.DeleteOne(ctx, bson.M{"_id": oid})
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -63,3 +63,11 @@ func (h *HotelHandler) HandlePutHotel(ctx *fiber.Ctx) error {
 	}
 	return ctx.JSON(map[string]string{"message": "updated hotel are: " + id})
 }
+
+func (h *HotelHandler) HandleDeleteHotel(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+	if err := h.store.HotelStore.DeleteHotel(ctx.Context(), id); err != nil {
+		return err
+	}
+	return ctx.JSON(map[string]string{"message": "hotel has been deleted successfully"})
+}
