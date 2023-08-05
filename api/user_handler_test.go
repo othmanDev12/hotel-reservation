@@ -26,7 +26,7 @@ func (d *TestDb) teardown(t *testing.T) {
 
 func Setup(t *testing.T) *TestDb {
 	// create mongodb connection
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(db.UriDb))
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(db.DbNameTest))
 	if err != nil {
 		t.Fatal(err)
 	}
