@@ -32,9 +32,6 @@ func (p *CreateUserParams) ValidateUser(c *CreateUserParams) map[string]string {
 	if len(c.Password) < minLengPassword {
 		errors["password"] = fmt.Sprintf("length od password must be greater than %d", len(c.Password))
 	}
-	if validEmail(c.Email) {
-		errors["email"] = fmt.Sprintf("email is invalid")
-	}
 	return errors
 }
 
