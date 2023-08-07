@@ -10,9 +10,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"os"
 )
 
 func main() {
+	if err := os.Setenv("JWT_SECRET", "mySecret"); err != nil {
+		log.Fatal(err)
+	}
 	config := fiber.Config{
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
 			return ctx.JSON(map[string]string{"message": err.Error()})
