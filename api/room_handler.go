@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/hotel-reservation/db"
 	"github.com/hotel-reservation/domain"
@@ -15,8 +14,9 @@ type RoomHandler struct {
 }
 
 type RoomBookingParams struct {
-	FromDate time.Time `json:"fromDate"`
-	TillDate time.Time `json:"tillDate"`
+	NumPersons int       `json:"numPersons"`
+	FromDate   time.Time `json:"fromDate"`
+	TillDate   time.Time `json:"tillDate"`
 }
 
 // NewRoomHandler creates a new constructor for the room handler
@@ -25,7 +25,11 @@ func NewRoomHandler(store *db.Store) *RoomHandler {
 }
 
 func (h *RoomHandler) HandleRoomBooking(c *fiber.Ctx) error {
+	var params RoomBookingParams
 	id := c.Params("id")
+	if err := c.BodyParser(&params); err != nil {
+		return err
+	}
 	roomId, err := util.ObjectIdParser(id)
 	if err != nil {
 		return err
@@ -39,10 +43,18 @@ func (h *RoomHandler) HandleRoomBooking(c *fiber.Ctx) error {
 	}
 
 	book := domain.Book{
-		UserId: userId.Id,
-		RoomId: roomId,
+		UserId:        userId.Id,
+		RoomId:        roomId,
+		NumberPersons: params.NumPersons,
+		FromDate:      params.FromDate,
+		TillDate:      params.TillDate,
 	}
 
-	fmt.Println(book)
-	return nil
+	inserted, err := h.store.BookingStore.InsertBooking(c.Context(), &book)
+	if err != nil {
+		return err
+	}
+	return c.JSON(inserted)
 }
+
+// 2023-04-15T00:00:00.0Z

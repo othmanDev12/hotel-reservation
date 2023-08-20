@@ -34,11 +34,13 @@ func main() {
 		userStore     = db.NewMongoUserStore(client)
 		hotelStore    = db.NewMongoHotelStore(client)
 		roomStore     = db.NewMongoRoomStore(client, hotelStore)
+		bookingStore  = db.NewMongoBookingStore(client)
 		appV1         = app.Group("api/v1", middleware.JWTAuthentication(userStore))
 		store         = &db.Store{
-			HotelStore: hotelStore,
-			RoomStore:  roomStore,
-			UserStore:  userStore,
+			HotelStore:   hotelStore,
+			RoomStore:    roomStore,
+			UserStore:    userStore,
+			BookingStore: bookingStore,
 		}
 		userHandler  = api.NewUserHandler(userStore)
 		authHandler  = api.NewAuthHandler(userStore)
