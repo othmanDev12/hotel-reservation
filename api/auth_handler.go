@@ -9,6 +9,7 @@ import (
 	"github.com/hotel-reservation/domain"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
+	"net/http"
 	"os"
 	"time"
 )
@@ -27,6 +28,18 @@ type AuthResp struct {
 	Token string       `json:"access_token"`
 }
 
+type GenericResp struct {
+	Type string `json:"type"`
+	Msg  string `json:"msg"`
+}
+
+func invalidCredentialsError(c *fiber.Ctx) error {
+	return c.Status(http.StatusBadRequest).JSON(GenericResp{
+		Type: "error",
+		Msg:  "invalid credentials",
+	})
+}
+
 func NewAuthHandler(userStore db.UserStore) *AuthHandler {
 	return &AuthHandler{userStore: userStore}
 }
@@ -40,12 +53,12 @@ func (h *AuthHandler) HandleAuthenticate(ctx *fiber.Ctx) error {
 	user, err := h.userStore.GetUserByEmail(ctx.Context(), params.Email)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return fmt.Errorf("invalid Credentials")
+			return invalidCredentialsError(ctx)
 		}
 	}
 
 	if !domain.CompareEncrAndPlainPassword(user.EncryptedPassword, params.Password) {
-		return fmt.Errorf("invalid Credentials")
+		return invalidCredentialsError(ctx)
 	}
 
 	token, err := CreateJwtFromUser(user)
