@@ -71,6 +71,7 @@ func main() {
 
 	// bookings
 	appV1.Get("/booking", bookingHandler.HandleGetBookings)
+	appV1.Get("/booking/:id", bookingHandler.HandleGetBooking)
 	err2 := app.Listen(*listenAddress)
 	if err2 != nil {
 		log.Fatal(err2)

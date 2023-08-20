@@ -11,6 +11,7 @@ import (
 type BookingStore interface {
 	InsertBooking(ctx context.Context, booking *domain.Booking) (*domain.Booking, error)
 	GetBookings(ctx context.Context, m bson.M) ([]*domain.Booking, error)
+	GetBookingByID(ctx context.Context, id string) (*domain.Booking, error)
 }
 
 type MongoBookingStore struct {
@@ -44,4 +45,16 @@ func (s *MongoBookingStore) GetBookings(ctx context.Context, filter bson.M) ([]*
 		return nil, err
 	}
 	return bookings, nil
+}
+
+func (s *MongoBookingStore) GetBookingByID(ctx context.Context, id string) (*domain.Booking, error) {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	var booking domain.Booking
+	if err := s.collection.FindOne(ctx, bson.M{"_id": oid}).Decode(&booking); err != nil {
+		return nil, err
+	}
+	return &booking, nil
 }

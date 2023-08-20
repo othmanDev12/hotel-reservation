@@ -27,5 +27,10 @@ func (h *BookingHandler) HandleGetBookings(ctx *fiber.Ctx) error {
 
 // HandleGetBooking is a function that is available for user
 func (h *BookingHandler) HandleGetBooking(c *fiber.Ctx) error {
-	return nil
+	id := c.Params("id")
+	booking, err := h.store.BookingStore.GetBookingByID(c.Context(), id)
+	if err != nil {
+		return err
+	}
+	return c.JSON(booking)
 }
