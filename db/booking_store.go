@@ -3,12 +3,14 @@ package db
 import (
 	"context"
 	"github.com/hotel-reservation/domain"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type BookingStore interface {
-	InsertBooking(ctx context.Context, booking *domain.Book) (*domain.Book, error)
+	InsertBooking(ctx context.Context, booking *domain.Booking) (*domain.Booking, error)
+	GetBookings(ctx context.Context, m bson.M) ([]*domain.Booking, error)
 }
 
 type MongoBookingStore struct {
@@ -23,11 +25,23 @@ func NewMongoBookingStore(client *mongo.Client) *MongoBookingStore {
 	}
 }
 
-func (s *MongoBookingStore) InsertBooking(ctx context.Context, booking *domain.Book) (*domain.Book, error) {
+func (s *MongoBookingStore) InsertBooking(ctx context.Context, booking *domain.Booking) (*domain.Booking, error) {
 	inserted, err := s.collection.InsertOne(ctx, booking)
 	if err != nil {
 		return nil, err
 	}
 	booking.Id = inserted.InsertedID.(primitive.ObjectID)
 	return booking, nil
+}
+
+func (s *MongoBookingStore) GetBookings(ctx context.Context, filter bson.M) ([]*domain.Booking, error) {
+	curr, err := s.collection.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	var bookings []*domain.Booking
+	if err := curr.All(ctx, &bookings); err != nil {
+		return nil, err
+	}
+	return bookings, nil
 }

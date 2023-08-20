@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type Book struct {
+type Booking struct {
 	Id            primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
 	RoomId        primitive.ObjectID `bson:"roomId,omitempty" json:"roomId,omitempty"`
 	UserId        primitive.ObjectID `bson:"userId,omitempty" json:"userId,omitempty"`

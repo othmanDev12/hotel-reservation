@@ -1,10 +1,12 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/hotel-reservation/db"
 	"github.com/hotel-reservation/domain"
 	"github.com/hotel-reservation/util"
+	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
 	"time"
 )
@@ -24,12 +26,25 @@ func NewRoomHandler(store *db.Store) *RoomHandler {
 	return &RoomHandler{store: store}
 }
 
+func (p RoomBookingParams) validate() error {
+	now := time.Now()
+	if now.After(p.FromDate) || now.After(p.TillDate) {
+		return fmt.Errorf("the current date that you pass is on the past")
+	}
+	return nil
+}
+
 func (h *RoomHandler) HandleRoomBooking(c *fiber.Ctx) error {
 	var params RoomBookingParams
 	id := c.Params("id")
 	if err := c.BodyParser(&params); err != nil {
 		return err
 	}
+
+	if err := params.validate(); err != nil {
+		return err
+	}
+
 	roomId, err := util.ObjectIdParser(id)
 	if err != nil {
 		return err
@@ -41,8 +56,15 @@ func (h *RoomHandler) HandleRoomBooking(c *fiber.Ctx) error {
 			Msg:  "internal server error",
 		})
 	}
+	ok, err = h.roomIsBooked(c, params)
+	if !ok {
+		return c.Status(http.StatusBadRequest).JSON(GenericResp{
+			Type: "error",
+			Msg:  fmt.Sprintf("room %s is already booked", id),
+		})
+	}
 
-	book := domain.Book{
+	book := domain.Booking{
 		UserId:        userId.Id,
 		RoomId:        roomId,
 		NumberPersons: params.NumPersons,
@@ -57,4 +79,17 @@ func (h *RoomHandler) HandleRoomBooking(c *fiber.Ctx) error {
 	return c.JSON(inserted)
 }
 
-// 2023-04-15T00:00:00.0Z
+func (h *RoomHandler) roomIsBooked(c *fiber.Ctx, params RoomBookingParams) (bool, error) {
+	filter := bson.M{
+		"fromDate": bson.M{"$gte": params.FromDate},
+		"tillDate": bson.M{"$lte": params.TillDate},
+	}
+
+	bookings, err := h.store.BookingStore.GetBookings(c.Context(), filter)
+	if err != nil {
+		return false, err
+	}
+
+	ok := len(bookings) == 0
+	return ok, nil
+}
