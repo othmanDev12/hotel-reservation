@@ -34,6 +34,14 @@ func (p RoomBookingParams) validate() error {
 	return nil
 }
 
+func (h *RoomHandler) HandleGetRooms(c *fiber.Ctx) error {
+	rooms, err := h.store.RoomStore.GetRooms(c.Context(), bson.M{})
+	if err != nil {
+		return err
+	}
+	return c.JSON(rooms)
+}
+
 func (h *RoomHandler) HandleRoomBooking(c *fiber.Ctx) error {
 	var params RoomBookingParams
 	id := c.Params("id")

@@ -66,6 +66,7 @@ func main() {
 
 	// booking
 	appV1.Post("/room/:id/book", roomHandler.HandleRoomBooking)
+	appV1.Get("/room", roomHandler.HandleGetRooms)
 
 	err2 := app.Listen(*listenAddress)
 	if err2 != nil {
