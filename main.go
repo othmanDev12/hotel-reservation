@@ -42,10 +42,11 @@ func main() {
 			UserStore:    userStore,
 			BookingStore: bookingStore,
 		}
-		userHandler  = api.NewUserHandler(userStore)
-		authHandler  = api.NewAuthHandler(userStore)
-		hotelHandler = api.NewHotelHandler(store)
-		roomHandler  = api.NewRoomHandler(store)
+		userHandler    = api.NewUserHandler(userStore)
+		authHandler    = api.NewAuthHandler(userStore)
+		hotelHandler   = api.NewHotelHandler(store)
+		roomHandler    = api.NewRoomHandler(store)
+		bookingHandler = api.NewBookingHandler(store)
 	)
 
 	// auth
@@ -64,10 +65,12 @@ func main() {
 	appV1.Put("/hotel/:id", hotelHandler.HandlePutHotel)
 	appV1.Delete("/hotel/:id", hotelHandler.HandleDeleteHotel)
 
-	// booking
+	// rooms
 	appV1.Post("/room/:id/book", roomHandler.HandleRoomBooking)
 	appV1.Get("/room", roomHandler.HandleGetRooms)
 
+	// bookings
+	appV1.Get("/booking", bookingHandler.HandleGetBookings)
 	err2 := app.Listen(*listenAddress)
 	if err2 != nil {
 		log.Fatal(err2)
